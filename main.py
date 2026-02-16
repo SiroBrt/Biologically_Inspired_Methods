@@ -9,9 +9,11 @@ import bisect
 import pandas as pd
 import numpy as np
 
-POPULATION_SIZE = 50
+POPULATION_SIZE = 100
 MUTATION_RATE = 0.01
 CROSSOVER_RATE = 0.7
+SEED = 1
+random.seed(SEED)
 
 
 class Pindividual:
@@ -112,12 +114,19 @@ def direct_selection(population, ark_capacity):
         elem = i.copy()
         # elem.punctual_mutation(MUTATION_RATE)
         new_popu.append(elem)
-    # aber cojan (from OG)
+
+    # aber cojan
     crossings = int((POPULATION_SIZE - ark_capacity) * CROSSOVER_RATE / 2)
     for i in range(crossings):
-        parent1 = random.randint(0, ark_capacity - 1)
-        parent2 = random.randint(0, ark_capacity - 1)
-        child1, child2 = saved[parent1].crossover(saved[parent2])
+        # from OG (exploitation)
+        # parent1 = random.randint(0, ark_capacity - 1)
+        # parent2 = random.randint(0, ark_capacity - 1)
+        # child1, child2 = saved[parent1].crossover(saved[parent2])
+        # from new (exploration)
+        parent1 = random.randint(0, len(new_popu) - 1)
+        parent2 = random.randint(0, len(new_popu) - 1)
+        child1, child2 = new_popu[parent1].crossover(new_popu[parent2])
+
         new_popu.append(child1)
         new_popu.append(child2)
 
@@ -136,6 +145,7 @@ def evolve(init, gen):
     for i in range(gen):
         print(f"gen {i} best: {min(popu)}")
         popu = direct_selection(popu, POPULATION_SIZE / 10)
+    print(f"gen {gen} best: {min(popu)}")
     return popu
 
 
@@ -151,6 +161,6 @@ popu = [Pindividual([]) for _ in range(POPULATION_SIZE)]
 # for i in popu:
 #     print(i)
 
-evolved = evolve(popu, 10)
+evolved = evolve(popu, 20)
 # for i in evolved:
 #     print(i)
