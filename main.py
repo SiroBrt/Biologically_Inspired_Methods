@@ -1,3 +1,5 @@
+# Binary genome
+
 # import matplotlib.pyplot as plt
 import random
 # import pandas as pd
@@ -8,16 +10,17 @@ def mask_X(X, mask):
     return X
 
 
-# --- CONFIGURATION ---
-POPULATION_SIZE = 200
-MUTATION_RATE = 0.05
-CROSSOVER_RATE = 0.7
-GENES = 23
-
-
 class Pindividual:
     def __init__(self, chromosome):
-        self.chromosome = list(chromosome)
+        length = len(list(chromosome))
+        if length > GENES:
+            print("WARNING: truncating chromosome")
+            self.chromosome = list(chromosome)[:GENES]
+        elif length < GENES:
+            print("WARNING: chromosome too short")
+            self.chromosome = list(chromosome) + [0] * (GENES - length)
+        else:
+            self.chromosome = list(chromosome)
         self.fitness = 0
         # self.calculate_fitness()
 
@@ -58,11 +61,12 @@ class Pindividual:
         self.chromosome = self.chromosome[:place1] + interposon2 + self.chromosome[place1 + size:place2] + interposon1 + self.chromosome[place2 + size:]
 
 
-yo = Pindividual([0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1])
-# yo = Pindividual([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+POPULATION_SIZE = 200
+MUTATION_RATE = 0.05
+CROSSOVER_RATE = 0.7
+GENES = 23
+
+# yo = Pindividual([0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1])
+yo = Pindividual()
 print(yo)
-yo.transposition_mutation(1)
-print(yo)
-# for i in range(20):
-#     print(random.randint(0, GENES - 1))
 
