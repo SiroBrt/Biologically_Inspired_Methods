@@ -11,10 +11,10 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
-POPULATION_SIZE = 100
-MUTATION_RATE = 0.05
+POPULATION_SIZE = 300
+MUTATION_RATE = 0.1
 CROSSOVER_RATE = 0.7
-GENERATIONS = 20
+GENERATIONS = 200
 SEED = 1
 
 
@@ -40,7 +40,7 @@ class Pindividual:
                 string = string + "1"
             else:
                 string = string + "0"
-        return f"{string}, fitness: {self.calculate_fitness()}, sum: {sum(self.chromosome)}"
+        return f"{string}, fitness: {round(self.calculate_fitness())}, sum: {sum(self.chromosome)}"
 
     def copy(self):
         return Pindividual(self.chromosome)
@@ -151,6 +151,9 @@ def direct_selection(population, ark_capacity, best):
 
 
 def tournament(population, selection_size, best):
+    fittest = min(population)
+    best.append(fittest.fitness)
+    # print(fittest)
     aux_popu = []
     for i in range(POPULATION_SIZE):
         selected = []
@@ -164,22 +167,15 @@ def tournament(population, selection_size, best):
         new_popu.append(ch1)
         new_popu.append(ch2)
         i = i + 2
-    fittest = min(new_popu)
-    print(fittest)
-    best.append(fittest.fitness)
     return new_popu
 
 
-def evolve(gen, selection, param, best):
-    t1 = time.time()
-    popu = [Pindividual([]) for _ in range(POPULATION_SIZE)]
+def evolve(popu, gen, selection, param, best):
     for i in range(gen):
-        print(f"gen {i} best: ", end='')
+        # print(f"gen {i} best: ", end='')
         popu = selection(popu, param, best)
 
     print(f"gen {gen} best: {min(popu)}")
-    t2 = time.time()
-    print(f"{t2-t1}s")
     return popu
 
 
@@ -192,13 +188,27 @@ GENES = X.shape[1]
 print("Done")
 
 
-random.seed(SEED)
-state = random.getstate()
-best1 = []
-evolved = evolve(GENERATIONS, tournament, 5, best1)
-plt.semilogy(best1)
-random.setstate(state)
-best2 = []
-evolved = evolve(GENERATIONS, direct_selection, POPULATION_SIZE / 10, best2)
-plt.semilogy(best2)
+# random.seed(SEED)
+popu1 = [Pindividual([]) for _ in range(POPULATION_SIZE)]
+popu2 = []
+for i in popu1:
+    popu2.append(i.copy())
+
+t1 = time.time()
+best_tournament = []
+evolved = evolve(popu1, GENERATIONS, tournament, int(POPULATION_SIZE / 20), best_tournament)
+t2 = time.time()
+print(f"{t2-t1}s")
+plt.semilogy(best_tournament, label=f'tournament ({round(t2-t1,2)}s)')
+
+t1 = time.time()
+best_direct = []
+evolved = evolve(popu2, GENERATIONS, direct_selection, int(POPULATION_SIZE / 10), best_direct)
+t2 = time.time()
+print(f"{t2-t1}s")
+
+plt.semilogy(best_direct, label=f'direct selection ({round(t2-t1,2)}s)')
+
+plt.legend()
+plt.savefig("tournament-direct")
 plt.show()
