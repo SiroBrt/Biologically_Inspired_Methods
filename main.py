@@ -159,9 +159,15 @@ def tournament(population, selection_size):
         parent2 = min(random.sample(population, selection_size))
         if (random.random() < CROSSOVER_RATE):
             ch1, ch2 = parent1.crossover(parent2)
+            ch1.punctual_mutation(MUTATION_RATE)
+            ch2.punctual_mutation(MUTATION_RATE)
             new_popu.append(ch1)
             new_popu.append(ch2)
         else:
+            parent1.punctual_mutation(MUTATION_RATE)
+            parent1.fitness = 0
+            parent2.punctual_mutation(MUTATION_RATE)
+            parent2.fitness = 0
             new_popu.append(parent1)
             new_popu.append(parent2)
     return new_popu
@@ -196,7 +202,7 @@ for i in popu1:
 
 t1 = time.time()
 best_tournament = []
-evolved = evolve(popu1, GENERATIONS, tournament, int(POPULATION_SIZE / 20), best_tournament)
+evolved = evolve(popu1, GENERATIONS, tournament, 10, best_tournament)
 t2 = time.time()
 print(f"{t2-t1}s")
 plt.semilogy(best_tournament, label=f'tournament ({round(t2-t1,2)}s)')
