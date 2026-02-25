@@ -1,5 +1,3 @@
-# Binary genome
-
 # import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
@@ -11,11 +9,14 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
-POPULATION_SIZE = 300
+POPULATION_SIZE = 100
 MUTATION_RATE = 0.1
 CROSSOVER_RATE = 0.7
-GENERATIONS = 200
+GENERATIONS = 20
 SEED = 1
+
+# Binary genome
+bases = [False, True]
 
 
 class Pindividual:
@@ -66,6 +67,9 @@ class Pindividual:
     def punctual_mutation(self, prob):
         for i in range(len(self.chromosome)):
             if random.random() < prob:
+                # mutable_bases = bases[:]
+                # mutable_bases.remove(self.chromosome[i])
+                # self.chromosome[i] = random.choice(mutable_bases)
                 self.chromosome[i] = not self.chromosome[i]
         self.fitness = 0
 
@@ -105,7 +109,7 @@ def linreg(M, v):
     return mean_squared_error(y_test, y_)
 
 
-def direct_selection(population, ark_capacity, best):
+def direct_selection(population, ark_capacity):
     # take best
     saved = []
     for i in population:
@@ -116,8 +120,6 @@ def direct_selection(population, ark_capacity, best):
             bisect.insort(saved, i)
         if len(saved) > ark_capacity:
             saved.pop()
-    print(saved[0])
-    best.append(saved[0].fitness)
 
     # keep saved
     new_popu = []
@@ -150,32 +152,30 @@ def direct_selection(population, ark_capacity, best):
     return new_popu
 
 
-def tournament(population, selection_size, best):
-    fittest = min(population)
-    best.append(fittest.fitness)
-    # print(fittest)
-    aux_popu = []
-    for i in range(POPULATION_SIZE):
-        selected = []
-        for i in range(selection_size):
-            selected.append(population[random.randint(0, len(population) - 1)])
-        aux_popu.append(min(selected).copy())
+def tournament(population, selection_size):
     new_popu = []
-    i = 0
     while len(new_popu) < POPULATION_SIZE:
-        ch1, ch2 = aux_popu[i].crossover(aux_popu[i + 1])
-        new_popu.append(ch1)
-        new_popu.append(ch2)
-        i = i + 2
+        parent1 = min(random.sample(population, selection_size))
+        parent2 = min(random.sample(population, selection_size))
+        if (random.random() < CROSSOVER_RATE):
+            ch1, ch2 = parent1.crossover(parent2)
+            new_popu.append(ch1)
+            new_popu.append(ch2)
+        else:
+            new_popu.append(parent1)
+            new_popu.append(parent2)
     return new_popu
 
 
 def evolve(popu, gen, selection, param, best):
     for i in range(gen):
-        # print(f"gen {i} best: ", end='')
-        popu = selection(popu, param, best)
-
-    print(f"gen {gen} best: {min(popu)}")
+        print(f"gen {i}, time: ", end='')
+        t1 = time.time()
+        popu = selection(popu, param)
+        t2 = time.time()
+        print(f"{t2-t1}s")
+        # best.append(min(popu))
+    print(min(popu))
     return popu
 
 
