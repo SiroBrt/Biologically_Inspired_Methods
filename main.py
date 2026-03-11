@@ -1,4 +1,3 @@
-# import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.linear_model import LinearRegression
@@ -185,6 +184,36 @@ def evolve(popu, gen, selection, param, best):
     return popu
 
 
+# mutation rate changes depending on improvement
+def evolve_var_mut(popu, threshold, selection, param, best):
+    t1 = time.time()
+    popu = selection(popu, param)
+    t2 = time.time()
+    best.append(min(popu))
+    print(f"gen 1, time: {t2-t1}s")
+
+    t1 = time.time()
+    popu = selection(popu, param)
+    t2 = time.time()
+    best.append(min(popu))
+    print(f"gen 2, time: {t2-t1}s")
+
+    improvement = (best[-1].fitness - best[-2].fitness) / best[-1].fitness
+
+    i = 2
+    while (improvement > threshold or improvement < 0):
+        print(f"gen {i}, time: ", end='')
+        t1 = time.time()
+        popu = selection(popu, param)
+        t2 = time.time()
+        print(f"{t2-t1}s")
+        best.append(min(popu))
+        i += 1
+        improvement = (best[-1].fitness - best[-2].fitness) / best[-1].fitness
+    print(min(popu))
+    return popu
+
+
 print("Reading")
 data = pd.read_excel('data.xlsx')
 data = data.dropna(axis=0)
@@ -199,22 +228,23 @@ popu1 = [Pindividual([]) for _ in range(POPULATION_SIZE)]
 popu2 = []
 for i in popu1:
     popu2.append(i.copy())
-
-t1 = time.time()
-best_tournament = []
-evolved = evolve(popu1, GENERATIONS, tournament, 10, best_tournament)
-t2 = time.time()
-print(f"{t2-t1}s")
-plt.semilogy(best_tournament, label=f'tournament ({round(t2-t1,2)}s)')
-
+#
+# t1 = time.time()
+# best_tournament = []
+# evolved = evolve(popu1, GENERATIONS, tournament, 10, best_tournament)
+# t2 = time.time()
+# print(f"{t2-t1}s")
+# plt.semilogy(best_tournament, label=f'tournament ({round(t2-t1,2)}s)')
+#
 t1 = time.time()
 best_direct = []
-evolved = evolve(popu2, GENERATIONS, direct_selection, int(POPULATION_SIZE / 10), best_direct)
+# evolved = evolve(popu2, GENERATIONS, direct_selection, int(POPULATION_SIZE / 10), best_direct)
+evolved = evolve_var_mut(popu2, 0.0001, direct_selection, int(POPULATION_SIZE / 10), best_direct)
 t2 = time.time()
 print(f"{t2-t1}s")
 
 plt.semilogy(best_direct, label=f'direct selection ({round(t2-t1,2)}s)')
 
 plt.legend()
-plt.savefig("tournament-direct")
+# plt.savefig("tournament-direct")
 plt.show()

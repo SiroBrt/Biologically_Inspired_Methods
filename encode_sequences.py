@@ -42,7 +42,7 @@ print(f"possible sequences: {possible}")
 print(f"best encoding uses {bits} bits")
 
 orden = random.sample(alfabeto, len(alfabeto))
-# orden = [0, 5, 2, 1, 3]
+# orden = [5, 2, 1, 3,4]
 print(f"sequence = {orden}\n")
 encoding = encode(orden, 'print')
 print(f"encoding = {encoding} -> {bin(encoding)[2:]}\n")
